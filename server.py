@@ -32,14 +32,20 @@ def authenticate_admin(credentials: HTTPBasicCredentials = Depends(security)):
         )
     return credentials.username
 
+# Load Session
 L = instaloader.Instaloader()
+INSTA_SESSION = os.getenv("INSTAGRAM_SESSION_ID")
+
 try:
-    if os.path.exists("session-admin"):
-        # We use 'admin' as a placeholder username
+    if INSTA_SESSION:
+        # Direct injection from .env (The most reliable method)
+        L.context._session.cookies.set("sessionid", INSTA_SESSION, domain=".instagram.com")
+        print("✅ Success: Using Master Session ID from .env")
+    elif os.path.exists("session-admin"):
         L.load_session_from_file("admin", "session-admin")
         print("✅ Success: Instagram session loaded from 'session-admin'.")
     else:
-        print("⚠️ Warning: No 'session-admin' file found. App is running in Guest mode.")
+        print("⚠️ Warning: No session found. App is running in Guest mode.")
 except Exception as e:
     print(f"❌ Session Load Error: {e}")
 
