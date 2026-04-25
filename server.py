@@ -115,7 +115,11 @@ async def scrape_single_post(url: str):
         
         try:
             # Method 1: Fast (Instaloader)
+            print(f"--- Scraping Attempt for {shortcode} ---")
+            print(f"Using Instaloader with session: {hasattr(L.context, '_session') and L.context._session.cookies.get_dict()}")
+            
             post = instaloader.Post.from_shortcode(L.context, shortcode)
+            print(f"✅ Instaloader Success for {shortcode}")
             return {
                 "shortcode": post.shortcode,
                 "display_url": post.url,
@@ -129,26 +133,31 @@ async def scrape_single_post(url: str):
             }
         except Exception as e:
             # Method 2: Reliable Fallback (Browserless with Session Injection)
-            print(f"Instaloader failed, falling back to Authenticated Browser: {e}")
+            print(f"⚠️ Instaloader failed ({e}), falling back to Authenticated Browser...")
             
             # Extract cookies from Instaloader session
             cookies = []
-            session_cookies = L.context._session.cookies.get_dict()
-            for name, value in session_cookies.items():
-                cookies.append({
-                    "name": name,
-                    "value": value,
-                    "domain": ".instagram.com",
-                    "path": "/"
-                })
+            try:
+                session_cookies = L.context._session.cookies.get_dict()
+                print(f"Found {len(session_cookies)} cookies to inject into Browser.")
+                for name, value in session_cookies.items():
+                    cookies.append({
+                        "name": name,
+                        "value": value,
+                        "domain": ".instagram.com",
+                        "path": "/"
+                    })
+            except Exception as cookie_err:
+                print(f"❌ Failed to extract cookies: {cookie_err}")
 
             from browser_service import scrape_post_with_browser
             browser_data = await scrape_post_with_browser(url, cookies=cookies)
             
             if browser_data:
+                print(f"✅ Browser Fallback Success for {shortcode}")
                 return browser_data
             
-            # If both fail
+            print(f"❌ Both methods failed for {shortcode}")
             raise HTTPException(
                 status_code=429, 
                 detail="Instagram is heavily throttling requests. Please wait a few minutes or try a different link."
