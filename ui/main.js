@@ -69,10 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.previewStats.textContent = `❤️ ${likes} | 💬 ${comments}`;
         elements.previewCaption.textContent = post.caption || 'No caption available.';
         
-        // Media rendering
+        // Media rendering with Proxy
+        const proxyPrefix = "/api/proxy/view?url=";
         elements.previewMedia.innerHTML = post.is_video 
-            ? `<video src="${post.video_url || post.display_url}" controls referrerpolicy="no-referrer"></video>`
-            : `<img src="${post.display_url}" alt="Post Preview" referrerpolicy="no-referrer">`;
+            ? `<video src="${proxyPrefix}${encodeURIComponent(post.video_url || post.display_url)}" controls referrerpolicy="no-referrer"></video>`
+            : `<img src="${proxyPrefix}${encodeURIComponent(post.display_url)}" alt="Post Preview" referrerpolicy="no-referrer">`;
 
         // Toggle Video Button visibility
         elements.dlVideoBtn.style.display = post.is_video ? 'inline-block' : 'none';

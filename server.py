@@ -202,7 +202,24 @@ async def proxy_download(url: str, filename: str, is_video: bool = False):
         print(f"Proxy download failed: {e}")
         raise HTTPException(status_code=500, detail="Download failed. Instagram blocked the file access.")
 
-# --- FILEFLOWS PROXY ---
+@app.get("/api/proxy/view")
+async def proxy_view(url: str):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        }
+        cookies = {"sessionid": INSTA_SESSION} if INSTA_SESSION else {}
+        
+        resp = requests.get(url, headers=headers, cookies=cookies, stream=True, timeout=15)
+        resp.raise_for_status()
+        
+        return StreamingResponse(
+            resp.iter_content(chunk_size=1024*1024),
+            media_type=resp.headers.get("Content-Type", "video/mp4")
+        )
+    except Exception as e:
+        print(f"Proxy view failed: {e}")
+        return JSONResponse(status_code=403, content={"detail": "Instagram blocked preview access."})
 
 @app.get("/api/fileflows/status")
 async def get_ff_status(username: str = Depends(authenticate_admin)):
