@@ -62,8 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePreviewUI(post) {
+        const likes = post.likes ? post.likes.toLocaleString() : 'N/A';
+        const comments = post.comments ? post.comments.toLocaleString() : 'N/A';
+        
         elements.previewUser.textContent = `@${post.owner_username}`;
-        elements.previewStats.textContent = `❤️ ${post.likes.toLocaleString()} | 💬 ${post.comments.toLocaleString()}`;
+        elements.previewStats.textContent = `❤️ ${likes} | 💬 ${comments}`;
         elements.previewCaption.textContent = post.caption || 'No caption available.';
         
         // Media rendering
