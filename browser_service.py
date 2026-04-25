@@ -100,3 +100,75 @@ def fetch_profile_via_browser(username):
     except Exception as e:
         print(f"Browserless error: {e}")
         return None
+
+async def scrape_post_with_browser(url):
+    """
+    Uses Browserless to fetch an Instagram post page and extract metadata.
+    """
+    if not BROWSERLESS_URL:
+        return None
+
+    base_url = BROWSERLESS_URL.rstrip('/')
+    endpoint = f"{base_url}/chromium/content"
+    if BROWSERLESS_TOKEN:
+        endpoint += f"?token={BROWSERLESS_TOKEN}"
+    
+    payload = {
+        "url": url,
+        "waitForTimeout": 4000,
+        "userAgent": {
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+    }
+    
+    try:
+        response = requests.post(endpoint, json=payload, timeout=40)
+        response.raise_for_status()
+        html = response.text
+        
+        # Extract shortcode from URL
+        match = re.search(r'/(?:p|reels|reel)/([^/?#&]+)', url)
+        shortcode = match.group(1) if match else "unknown"
+
+        # Try to extract metadata from LD+JSON
+        ld_json = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
+        if ld_json:
+            data = json.loads(ld_json.group(1))
+            if isinstance(data, list): data = data[0]
+            
+            is_video = data.get("@type") == "VideoObject"
+            
+            return {
+                "shortcode": shortcode,
+                "display_url": data.get("thumbnailUrl") or data.get("image"),
+                "video_url": data.get("contentUrl") if is_video else None,
+                "caption": data.get("description", ""),
+                "likes": 0,
+                "comments": 0,
+                "owner_username": data.get("author", {}).get("alternateName", "instagram_user"),
+                "timestamp": data.get("uploadDate", ""),
+                "is_video": is_video
+            }
+            
+        # Fallback for Reels (sometimes LD+JSON is missing for Reels)
+        video_match = re.search(r'<meta property="og:video" content="(.*?)"', html)
+        image_match = re.search(r'<meta property="og:image" content="(.*?)"', html)
+        desc_match = re.search(r'<meta property="og:description" content="(.*?)"', html)
+        
+        if video_match or image_match:
+            return {
+                "shortcode": shortcode,
+                "display_url": image_match.group(1) if image_match else "",
+                "video_url": video_match.group(1) if video_match else None,
+                "caption": desc_match.group(1) if desc_match else "",
+                "likes": 0,
+                "comments": 0,
+                "owner_username": "instagram_user",
+                "timestamp": "",
+                "is_video": bool(video_match)
+            }
+
+        return None
+    except Exception as e:
+        print(f"Browser scrape failed: {e}")
+        return None
