@@ -10,9 +10,15 @@
     --text-dim: #a0a0a8;
 }
 
-* {
+html, body {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+* {
     box-sizing: border-box;
 }
 
@@ -23,7 +29,7 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    overflow-x: hidden;
+    width: 100%;
 }
 
 .background-blobs {
@@ -204,8 +210,9 @@ button {
 
 .preview-container {
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    width: 100%;
 }
 
 .preview-media {
