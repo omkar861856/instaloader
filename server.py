@@ -110,20 +110,40 @@ async def scrape_single_post(url: str):
             raise HTTPException(status_code=400, detail="Invalid Instagram URL")
         
         shortcode = match.group(1)
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
         
-        return {
-            "shortcode": post.shortcode,
-            "display_url": post.url,
-            "video_url": post.video_url if post.is_video else None,
-            "caption": post.caption,
-            "likes": post.likes,
-            "comments": post.comments,
-            "owner_username": post.owner_username,
-            "timestamp": post.date_utc.isoformat(),
-            "is_video": post.is_video
-        }
+        try:
+            # Method 1: Fast (Instaloader)
+            post = instaloader.Post.from_shortcode(L.context, shortcode)
+            return {
+                "shortcode": post.shortcode,
+                "display_url": post.url,
+                "video_url": post.video_url if post.is_video else None,
+                "caption": post.caption,
+                "likes": post.likes,
+                "comments": post.comments,
+                "owner_username": post.owner_username,
+                "timestamp": post.date_utc.isoformat(),
+                "is_video": post.is_video
+            }
+        except Exception as e:
+            # Method 2: Reliable Fallback (Browserless)
+            print(f"Instaloader failed, falling back to Browser: {e}")
+            from browser_service import scrape_post_with_browser
+            browser_data = await scrape_post_with_browser(url)
+            
+            if browser_data:
+                return browser_data
+            
+            # If both fail
+            raise HTTPException(
+                status_code=429, 
+                detail="Instagram is heavily throttling requests. Please wait a few minutes or try a different link."
+            )
+
+    except HTTPException as he:
+        raise he
     except Exception as e:
+        print(f"Scrape error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/proxy/download")
