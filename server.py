@@ -157,10 +157,10 @@ async def scrape_single_post(url: str):
                 print(f"✅ Browser Fallback Success for {shortcode}")
                 return browser_data
             
-            print(f"❌ Both methods failed for {shortcode}")
+            print(f"❌ Both methods failed for {shortcode}. Instagram is aggressively blocking this content.")
             raise HTTPException(
                 status_code=429, 
-                detail="Instagram is heavily throttling requests. Please wait a few minutes or try a different link."
+                detail="Instagram is blocking this request. Try a different link or wait a few minutes."
             )
 
     except HTTPException as he:
