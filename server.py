@@ -10,7 +10,6 @@ import re
 from browser_service import fetch_profile_via_browser
 from llm_service import analyze_profile_niche
 from fileflows_service import list_fileflows_media, trigger_fileflows_process
-import browser_cookie3
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,15 +33,17 @@ def authenticate_admin(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 L = instaloader.Instaloader()
-FILEFLOWS_URL = os.getenv("FILEFLOWS_URL")
-
-# Try to load session from local browser to avoid 403s
 try:
-    cookies = browser_cookie3.chrome(domain_name='instagram.com')
-    L.context._session.cookies.update(cookies)
-    print("Successfully loaded Instagram cookies from Chrome.")
+    if os.path.exists("session-admin"):
+        # We use 'admin' as a placeholder username
+        L.load_session_from_file("admin", "session-admin")
+        print("✅ Success: Instagram session loaded from 'session-admin'.")
+    else:
+        print("⚠️ Warning: No 'session-admin' file found. App is running in Guest mode.")
 except Exception as e:
-    print(f"Could not load cookies from Chrome: {e}")
+    print(f"❌ Session Load Error: {e}")
+
+FILEFLOWS_URL = os.getenv("FILEFLOWS_URL")
 
 # Allow CORS for development
 app.add_middleware(
