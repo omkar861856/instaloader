@@ -253,6 +253,36 @@ async def get_ff_libraries(username: str = Depends(authenticate_admin)):
     except:
         return []
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+@app.post("/api/admin/insta-login")
+async def admin_insta_login(req: LoginRequest):
+    try:
+        # Create a clean Instaloader instance for login
+        login_loader = instaloader.Instaloader()
+        
+        try:
+            login_loader.login(req.username, req.password)
+            login_loader.save_session_to_file("session-admin")
+            
+            # Reload the main global 'L' instance with the new session
+            global L
+            L = instaloader.Instaloader()
+            L.load_session_from_file("admin", "session-admin")
+            
+            return {"status": "success", "message": f"Logged in as {req.username}"}
+        except instaloader.TwoFactorAuthRequiredException:
+            return JSONResponse(status_code=401, content={"status": "error", "detail": "Two-Factor Authentication is enabled on your account. Please disable it temporarily to link the server."})
+        except instaloader.BadCredentialsException:
+            return JSONResponse(status_code=401, content={"status": "error", "detail": "Invalid Instagram username or password."})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"status": "error", "detail": str(e)})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/fileflows/rescan")
 async def ff_rescan(username: str = Depends(authenticate_admin)):
     if not FILEFLOWS_URL: return {"status": "error"}

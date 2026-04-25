@@ -43,6 +43,22 @@
                 <div class="ff-grid">
                     <!-- Column 1: Control & Stats -->
                     <div class="ff-col">
+                        <!-- Instagram Session Management -->
+                        <div class="ff-card glass" style="border-color: #e1306c;">
+                            <h4 style="color: #e1306c;">Instagram Media Engine</h4>
+                            <div class="ff-actions-vertical">
+                                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">
+                                    Generate a master session to bypass Instagram blocks.
+                                </p>
+                                <input type="text" id="insta-user" placeholder="Instagram Username" class="admin-input">
+                                <input type="password" id="insta-pass" placeholder="Instagram Password" class="admin-input">
+                                <button onclick="loginInsta()" id="insta-login-btn" class="btn btn-primary" style="background: linear-gradient(45deg, #f09433, #e1306c, #bc1888);">
+                                    Login & Generate Session
+                                </button>
+                                <div id="insta-status" style="font-size: 0.75rem; text-align: center; margin-top: 0.5rem;"></div>
+                            </div>
+                        </div>
+
                         <div class="ff-card glass">
                             <h4>System Controls</h4>
                             <div class="ff-actions-vertical">
@@ -137,11 +153,63 @@
             refreshFF();
         }
 
+        async function loginInsta() {
+            const user = document.getElementById('insta-user').value;
+            const pass = document.getElementById('insta-pass').value;
+            const status = document.getElementById('insta-status');
+            const btn = document.getElementById('insta-login-btn');
+
+            if (!user || !pass) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            status.textContent = 'Authenticating with Instagram...';
+            status.style.color = 'var(--accent)';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/insta-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    status.textContent = '✅ Session Generated Successfully!';
+                    status.style.color = '#00ff00';
+                } else {
+                    status.textContent = '❌ Error: ' + data.detail;
+                    status.style.color = '#ff4d4d';
+                }
+            } catch (e) {
+                status.textContent = '❌ Connection Error';
+                status.style.color = '#ff4d4d';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', refreshFF);
         setInterval(refreshFF, 15000);
     </script>
 
     <style>
+        .admin-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: white;
+            font-family: inherit;
+            margin-bottom: 0.5rem;
+        }
+        .admin-input:focus {
+            outline: none;
+            border-color: #e1306c;
+        }
         .ff-status-strip {
             display: flex;
             justify-content: space-around;
