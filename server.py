@@ -126,10 +126,22 @@ async def scrape_single_post(url: str):
                 "is_video": post.is_video
             }
         except Exception as e:
-            # Method 2: Reliable Fallback (Browserless)
-            print(f"Instaloader failed, falling back to Browser: {e}")
+            # Method 2: Reliable Fallback (Browserless with Session Injection)
+            print(f"Instaloader failed, falling back to Authenticated Browser: {e}")
+            
+            # Extract cookies from Instaloader session
+            cookies = []
+            session_cookies = L.context._session.cookies.get_dict()
+            for name, value in session_cookies.items():
+                cookies.append({
+                    "name": name,
+                    "value": value,
+                    "domain": ".instagram.com",
+                    "path": "/"
+                })
+
             from browser_service import scrape_post_with_browser
-            browser_data = await scrape_post_with_browser(url)
+            browser_data = await scrape_post_with_browser(url, cookies=cookies)
             
             if browser_data:
                 return browser_data

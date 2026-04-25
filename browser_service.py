@@ -101,9 +101,9 @@ def fetch_profile_via_browser(username):
         print(f"Browserless error: {e}")
         return None
 
-async def scrape_post_with_browser(url):
+async def scrape_post_with_browser(url, cookies=None):
     """
-    Deep Scrape: Uses Browserless to extract high-res media from Instagram Reels/Posts.
+    Deep Scrape: Uses Browserless with session injection to bypass login walls.
     """
     if not BROWSERLESS_URL: return None
 
@@ -113,8 +113,9 @@ async def scrape_post_with_browser(url):
     
     payload = {
         "url": url,
-        "waitForTimeout": 6000, # Give it more time to load dynamic media
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+        "waitForTimeout": 6000,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "setCookies": cookies if cookies else []
     }
     
     try:
