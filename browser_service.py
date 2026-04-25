@@ -114,24 +114,31 @@ async def scrape_post_with_browser(url, cookies=None):
             }
             
         # 3. Final Fallback: SEO Meta Tags (via requests)
-        return await scrape_via_og_tags(url)
+        return await scrape_via_og_tags(url, cookies=cookies)
 
     except Exception as e:
         print(f"Deep Scrape Error: {e}")
-        return await scrape_via_og_tags(url)
+        return await scrape_via_og_tags(url, cookies=cookies)
 
-async def scrape_via_og_tags(url):
+async def scrape_via_og_tags(url, cookies=None):
     """
     Method 3: Extracts media from OpenGraph/SEO meta tags.
     """
-    print("🔄 Attempting SEO Meta-Scraping fallback...")
+    print("🔄 Attempting SEO Meta-Scraping fallback with session...")
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
             "Accept-Language": "en-US,en;q=0.9"
         }
-        resp = requests.get(url, headers=headers, timeout=10)
-        html = resp.text
+        
+        # Convert list of cookie dicts to a dict for requests
+        cookie_dict = {}
+        if cookies:
+            for c in cookies:
+                cookie_dict[c['name']] = c['value']
+
+        resp = requests.get(url, headers=headers, cookies=cookie_dict, timeout=10)
+        resp.raise_for_status()
         
         video_match = re.search(r'property="og:video" content="([^"]+)"', html)
         image_match = re.search(r'property="og:image" content="([^"]+)"', html)
