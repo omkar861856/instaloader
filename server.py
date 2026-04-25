@@ -176,37 +176,31 @@ async def scrape_single_post(url: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/proxy/download")
-async def proxy_download(url: str, filename: str = "instagram_media", is_video: str = "false"):
+async def proxy_download(url: str, filename: str, is_video: bool = False):
     try:
-        # Convert string to bool (FastAPI query params come as strings)
-        is_video_bool = is_video.lower() == "true"
-        
-        session = L.context._session
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-            "Referer": "https://www.instagram.com/"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept-Encoding": "identity"
         }
-        ext = ".mp4" if is_video_bool else ".jpg"
         
-        response = session.get(url, headers=headers, stream=True, timeout=30)
-        response.raise_for_status()
-        
-        def iterfile():
-            for chunk in response.iter_content(chunk_size=8192):
-                yield chunk
+        # Inject Master Session if available
+        cookies = {}
+        if INSTA_SESSION:
+            cookies["sessionid"] = INSTA_SESSION
+
+        resp = requests.get(url, headers=headers, cookies=cookies, stream=True, timeout=30)
+        resp.raise_for_status()
+
+        content_type = resp.headers.get("Content-Type", "video/mp4" if is_video else "image/jpeg")
         
         return StreamingResponse(
-            iterfile(), 
-            media_type="application/octet-stream",
-            headers={
-                "Content-Disposition": f'attachment; filename="{filename}{ext}"',
-                "Content-Type": "application/octet-stream",
-                "X-Content-Type-Options": "nosniff"
-            }
+            resp.iter_content(chunk_size=1024*1024),
+            media_type=content_type,
+            headers={"Content-Disposition": f'attachment; filename="{filename}.{"mp4" if is_video else "jpg"}"'}
         )
     except Exception as e:
-        print(f"Proxy download failed for {url}: {e}")
-        raise HTTPException(status_code=500, detail=f"Proxy failed: {str(e)}")
+        print(f"Proxy download failed: {e}")
+        raise HTTPException(status_code=500, detail="Download failed. Instagram blocked the file access.")
 
 # --- FILEFLOWS PROXY ---
 
