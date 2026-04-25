@@ -1,2 +1,12 @@
+venv/
+.env
 __pycache__/
-.mypy_cache/
+*.pyc
+ui/downloads/
+*.log
+.gemini/
+swagger.json
+debug_ff.py
+test_browserless.py
+demo_api.py
+test/

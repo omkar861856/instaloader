@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGram | FileFlows Admin Control</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">⚙️</span>
+                <h1>FileFlows Control</h1>
+            </div>
+            <p class="subtitle">Direct API Management Portal</p>
+        </header>
+
+        <main>
+            <div id="ff-admin-root">
+                <!-- Status Bar -->
+                <div class="ff-status-strip glass">
+                    <div class="status-item">
+                        <span class="label">Status:</span>
+                        <span id="ff-conn-status" class="value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">CPU:</span>
+                        <span id="ff-cpu-usage" class="value">0%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Memory:</span>
+                        <span id="ff-mem-usage" class="value">0GB</span>
+                    </div>
+                </div>
+
+                <div class="ff-grid">
+                    <!-- Column 1: Control & Stats -->
+                    <div class="ff-col">
+                        <div class="ff-card glass">
+                            <h4>System Controls</h4>
+                            <div class="ff-actions-vertical">
+                                <button onclick="ffAction('rescan')" class="btn btn-primary">Rescan All Libraries</button>
+                                <button onclick="ffAction('pause')" class="btn btn-secondary">Pause/Resume Processing</button>
+                            </div>
+                        </div>
+
+                        <div class="ff-card glass">
+                            <h4>Processing Queue</h4>
+                            <div id="ff-queue-summary">
+                                <p>Files in Queue: <span id="q-count">0</span></p>
+                                <p>In Progress: <span id="p-count">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Libraries & Nodes -->
+                    <div class="ff-col">
+                        <div class="ff-card glass">
+                            <h4>Active Nodes</h4>
+                            <ul id="ff-nodes-list" class="ff-list"></ul>
+                        </div>
+                        <div class="ff-card glass">
+                            <h4>Libraries</h4>
+                            <ul id="ff-libs-list" class="ff-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Recent Activity -->
+                    <div class="ff-col">
+                        <div class="ff-card glass">
+                            <h4>Recently Finished</h4>
+                            <ul id="ff-recent-list" class="ff-list compact"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="/" class="btn-text">← Return to EcoGram Downloader</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function refreshFF() {
+            try {
+                // System Info
+                const infoRes = await fetch('/api/fileflows/info');
+                const info = await infoRes.json();
+                document.getElementById('ff-cpu-usage').textContent = `${Math.round(info.CpuUsage || 0)}%`;
+                document.getElementById('ff-mem-usage').textContent = `${(info.MemoryUsage / 1024 / 1024 / 1024).toFixed(1)}GB`;
+                document.getElementById('ff-conn-status').textContent = 'Online';
+                document.getElementById('ff-conn-status').style.color = '#00f2ff';
+
+                // Status & Queue
+                const statusRes = await fetch('/api/fileflows/status');
+                const status = await statusRes.json();
+                document.getElementById('q-count').textContent = status.queue || 0;
+                document.getElementById('p-count').textContent = status.processing || 0;
+
+                // Nodes
+                const nodesRes = await fetch('/api/fileflows/nodes');
+                const nodes = await nodesRes.json();
+                document.getElementById('ff-nodes-list').innerHTML = nodes.map(n => 
+                    `<li>${n.Name} <small style="color:${n.Status === 1 ? '#00ff00' : '#ff4d4d'}">●</small></li>`
+                ).join('') || '<li>No nodes</li>';
+
+                // Libraries
+                const libsRes = await fetch('/api/fileflows/libraries');
+                const libs = await libsRes.json();
+                document.getElementById('ff-libs-list').innerHTML = libs.map(l => `<li>${l.Name}</li>`).join('') || '<li>No libraries</li>';
+
+                // Recent
+                const recentRes = await fetch('/api/downloads/all');
+                const recent = await recentRes.json();
+                document.getElementById('ff-recent-list').innerHTML = recent.slice(0, 8).map(r => 
+                    `<li>${r.name.substring(0, 20)}...</li>`
+                ).join('') || '<li>No recent activity</li>';
+
+            } catch (e) {
+                document.getElementById('ff-conn-status').textContent = 'Error Connecting';
+                document.getElementById('ff-conn-status').style.color = '#ff4d4d';
+            }
+        }
+
+        async function ffAction(action) {
+            const res = await fetch(`/api/fileflows/${action}`, { method: 'POST' });
+            const data = await res.json();
+            alert(data.status === 'success' ? 'Action executed!' : 'Action failed');
+            refreshFF();
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshFF);
+        setInterval(refreshFF, 15000);
+    </script>
+
+    <style>
+        .ff-status-strip {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+        .status-item .label { color: var(--text-dim); font-size: 0.8rem; margin-right: 0.5rem; }
+        .status-item .value { font-weight: 700; color: var(--accent); }
+        .ff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .ff-actions-vertical { display: flex; flex-direction: column; gap: 0.8rem; }
+        .ff-list.compact { font-size: 0.75rem; }
+        @media (max-width: 900px) { .ff-grid { grid-template-columns: 1fr; } }
+    </style>
+</body>
+</html>

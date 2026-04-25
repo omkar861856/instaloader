@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGram | Premium Instagram Post Downloader</title>
+    <meta name="description" content="EcoGram is a premium tool for downloading Instagram posts, reels, and videos in high quality.">
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🌿</span>
+                <h1>EcoGram</h1>
+            </div>
+            <p class="subtitle">Premium Instagram Post & Reel Downloader</p>
+        </header>
+
+        <main>
+            <section class="search-section glass">
+                <div class="search-container">
+                    <input type="text" id="post-url-input" placeholder="Paste Instagram Post or Reel URL here..." spellcheck="false">
+                    <button id="scrape-post-btn">Download Now</button>
+                </div>
+            </section>
+
+            <div id="loading" class="loader-container hidden">
+                <div class="loader"></div>
+                <p>Scraping media intelligence...</p>
+            </div>
+
+            <div id="error-msg" class="error-msg hidden"></div>
+
+            <!-- Single Post Preview -->
+            <div id="post-preview-card" class="post-preview-card glass hidden">
+                <div class="preview-container">
+                    <div id="preview-media" class="preview-media">
+                        <!-- Image or Video will be injected here -->
+                    </div>
+                    <div class="preview-details">
+                        <div class="preview-header">
+                            <span class="preview-user" id="preview-user">@username</span>
+                            <span class="preview-stats" id="preview-stats">❤️ 0 | 💬 0</span>
+                        </div>
+                        <p class="preview-caption" id="preview-caption"></p>
+                        <div class="preview-actions">
+                            <button class="btn btn-primary" id="save-to-vault-btn">Save to Vault</button>
+                            <button class="btn btn-secondary" id="dl-thumb-btn">Download Thumbnail</button>
+                            <button class="btn btn-secondary" id="dl-video-btn" style="display: none;">Download Video/Reel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="about-section glass">
+                <h3>About EcoGram</h3>
+                <p>EcoGram is a premium Instagram Reel & Media downloader designed for professional video editors, content creators, and social media managers. Fetch high-quality source materials directly for your creative projects with zero quality loss.</p>
+                <div class="developer-info">
+                    <p>Developer Contact: <a href="mailto:omkar861856@gmail.com">omkar861856@gmail.com</a></p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 EcoGram. All rights reserved.</p>
+            <p class="powered">Powered by <strong>ecotron labs</strong></p>
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
