@@ -78,25 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.dlVideoBtn.style.display = post.is_video ? 'inline-block' : 'none';
     }
 
-    async function forceDownload(url, filename) {
-        elements.loading.classList.remove('hidden');
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Proxy returned error');
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(blobUrl);
-            a.remove();
-        } catch (err) {
-            alert('Download failed. This can happen if Instagram blocks the request.');
-        } finally {
-            elements.loading.classList.add('hidden');
-        }
+    function forceDownload(url, filename) {
+        // Direct browser-triggered download
+        window.location.href = url;
     }
 
     function showError(msg) {
