@@ -139,6 +139,7 @@ async def scrape_via_og_tags(url, cookies=None):
 
         resp = requests.get(url, headers=headers, cookies=cookie_dict, timeout=10)
         resp.raise_for_status()
+        html = resp.text
         
         video_match = re.search(r'property="og:video" content="([^"]+)"', html)
         image_match = re.search(r'property="og:image" content="([^"]+)"', html)
