@@ -195,4 +195,37 @@ async def scrape_post_with_browser(url, cookies=None):
         return None
     except Exception as e:
         print(f"Deep Scrape Error: {e}")
-        return None
+        # Final Fallback: SEO Meta Tags
+        return await scrape_via_og_tags(url)
+
+async def scrape_via_og_tags(url):
+    """
+    Method 3: Extracts media from OpenGraph/SEO meta tags.
+    Instagram often serves these even when APIs are blocked.
+    """
+    print("🔄 Attempting SEO Meta-Scraping fallback...")
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+            "Accept-Language": "en-US,en;q=0.9"
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
+        html = resp.text
+        
+        video_match = re.search(r'property="og:video" content="([^"]+)"', html)
+        image_match = re.search(r'property="og:image" content="([^"]+)"', html)
+        caption_match = re.search(r'property="og:description" content="([^"]+)"', html)
+        
+        if video_match or image_match:
+            print("✅ SEO Meta-Scraping Success!")
+            return {
+                "shortcode": url.split("/")[-2] if "/" in url else "post",
+                "display_url": image_match.group(1) if image_match else None,
+                "video_url": video_match.group(1) if video_match else None,
+                "caption": caption_match.group(1) if caption_match else "No caption",
+                "is_video": bool(video_match),
+                "owner_username": "instagram_user"
+            }
+    except Exception as e:
+        print(f"SEO Meta-Scraping failed: {e}")
+    return None
