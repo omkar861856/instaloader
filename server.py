@@ -127,11 +127,17 @@ async def scrape_single_post(url: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/proxy/download")
-async def proxy_download(url: str, filename: str = "instagram_media", is_video: bool = False):
+async def proxy_download(url: str, filename: str = "instagram_media", is_video: str = "false"):
     try:
+        # Convert string to bool (FastAPI query params come as strings)
+        is_video_bool = is_video.lower() == "true"
+        
         session = L.context._session
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        ext = ".mp4" if is_video else ".jpg"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            "Referer": "https://www.instagram.com/"
+        }
+        ext = ".mp4" if is_video_bool else ".jpg"
         
         response = session.get(url, headers=headers, stream=True, timeout=30)
         response.raise_for_status()
@@ -150,23 +156,8 @@ async def proxy_download(url: str, filename: str = "instagram_media", is_video: 
             }
         )
     except Exception as e:
+        print(f"Proxy download failed for {url}: {e}")
         raise HTTPException(status_code=500, detail=f"Proxy failed: {str(e)}")
-
-@app.post("/api/download/post/{shortcode}")
-async def download_post(shortcode: str):
-    try:
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
-        target_dir = f"ui/downloads/{post.owner_username}"
-        os.makedirs(target_dir, exist_ok=True)
-        L.download_post(post, target=target_dir)
-        return {"message": f"Post {shortcode} downloaded successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/downloads/all")
-async def list_all_downloads():
-    all_files = list_fileflows_media()
-    return all_files
 
 # --- FILEFLOWS PROXY ---
 
@@ -265,4 +256,10 @@ if os.path.exists("ui"):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import sys
+    
+    port = 5050
+    if len(sys.argv) > 2 and sys.argv[1] == "--port":
+        port = int(sys.argv[2])
+        
+    uvicorn.run(app, host="0.0.0.0", port=port)
