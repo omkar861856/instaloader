@@ -301,16 +301,6 @@ button {
     letter-spacing: 0.5px;
 }
 
-@media (max-width: 768px) {
-    .about-grid {
-        grid-template-columns: 1fr;
-    }
-    .about-features {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-}
-
 .preview-media img, .preview-media video {
     width: 100%;
     height: 450px;
@@ -363,6 +353,8 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
 }
 
 .btn-primary {
@@ -374,159 +366,6 @@ button {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     border: 1px solid var(--glass-border);
-}
-
-/* Vault Section */
-.vault-section {
-    padding: 2rem;
-}
-
-.vault-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.btn-text {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.vault-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
-.vault-item {
-    border-radius: 12px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--glass-border);
-    transition: all 0.3s ease;
-}
-
-.vault-item:hover {
-    transform: translateY(-5px);
-    border-color: var(--accent);
-}
-
-.vault-item img, .vault-item video {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-}
-
-.vault-info {
-    padding: 0.5rem;
-    font-size: 0.7rem;
-    text-align: center;
-}
-
-.vault-info a {
-    color: var(--accent);
-    text-decoration: none;
-    display: block;
-    margin-top: 5px;
-    font-weight: 600;
-}
-
-.empty-vault {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-dim);
-}
-
-/* FileFlows Admin */
-.ff-admin-section {
-    padding: 2rem;
-    margin-top: 2rem;
-}
-
-.ff-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.status-badge {
-    background: rgba(0, 242, 255, 0.1);
-    color: var(--accent);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: 1px solid var(--accent);
-}
-
-.ff-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.ff-card {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.2rem;
-}
-
-.ff-card h4 {
-    color: var(--accent);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.ff-list {
-    list-style: none;
-    font-size: 0.85rem;
-}
-
-.ff-list li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--glass-border);
-    color: var(--text-dim);
-}
-
-.ff-list li:last-child {
-    border-bottom: none;
-}
-
-.ff-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-}
-
-.btn-mini {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-mini:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-}
-
-.header-actions {
-    display: flex;
-    gap: 1.5rem;
 }
 
 .footer {
@@ -543,8 +382,107 @@ button {
 
 .hidden { display: none !important; }
 
-@media (max-width: 768px) {
+/* -------------------------------------------------------------------------- */
+/*                          MOBILE RESPONSIVENESS                             */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 992px) {
     .preview-container {
+        grid-template-columns: 1fr !important;
+        gap: 2rem;
+    }
+    
+    .preview-media img, .preview-media video {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem 1rem;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+    }
+
+    .about-grid {
         grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .section-title {
+        justify-content: center;
+    }
+
+    .about-features {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .feature-tag:hover {
+        transform: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .logo h1 {
+        font-size: 2rem;
+    }
+
+    .search-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    #post-url-input {
+        width: 100%;
+        text-align: center;
+    }
+
+    #scrape-post-btn {
+        width: 100%;
+    }
+
+    .preview-media img, .preview-media video {
+        max-height: 350px;
+    }
+
+    .preview-user {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
+    .preview-stats {
+        text-align: center;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .preview-caption {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .preview-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .about-section {
+        padding: 1.5rem;
+    }
+
+    .developer-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
     }
 }
