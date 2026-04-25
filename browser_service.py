@@ -103,72 +103,89 @@ def fetch_profile_via_browser(username):
 
 async def scrape_post_with_browser(url):
     """
-    Uses Browserless to fetch an Instagram post page and extract metadata.
+    Deep Scrape: Uses Browserless to extract high-res media from Instagram Reels/Posts.
     """
-    if not BROWSERLESS_URL:
-        return None
+    if not BROWSERLESS_URL: return None
 
     base_url = BROWSERLESS_URL.rstrip('/')
     endpoint = f"{base_url}/chromium/content"
-    if BROWSERLESS_TOKEN:
-        endpoint += f"?token={BROWSERLESS_TOKEN}"
+    if BROWSERLESS_TOKEN: endpoint += f"?token={BROWSERLESS_TOKEN}"
     
     payload = {
         "url": url,
-        "waitForTimeout": 4000,
-        "userAgent": {
-            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
+        "waitForTimeout": 6000, # Give it more time to load dynamic media
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
     }
     
     try:
-        response = requests.post(endpoint, json=payload, timeout=40)
+        response = requests.post(endpoint, json=payload, timeout=50)
         response.raise_for_status()
         html = response.text
         
-        # Extract shortcode from URL
+        # Extract shortcode
         match = re.search(r'/(?:p|reels|reel)/([^/?#&]+)', url)
         shortcode = match.group(1) if match else "unknown"
+        is_reel = "/reels/" in url or "/reel/" in url
 
-        # Try to extract metadata from LD+JSON
-        ld_json = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
-        if ld_json:
-            data = json.loads(ld_json.group(1))
-            if isinstance(data, list): data = data[0]
-            
-            is_video = data.get("@type") == "VideoObject"
-            
-            return {
-                "shortcode": shortcode,
-                "display_url": data.get("thumbnailUrl") or data.get("image"),
-                "video_url": data.get("contentUrl") if is_video else None,
-                "caption": data.get("description", ""),
-                "likes": 0,
-                "comments": 0,
-                "owner_username": data.get("author", {}).get("alternateName", "instagram_user"),
-                "timestamp": data.get("uploadDate", ""),
-                "is_video": is_video
-            }
-            
-        # Fallback for Reels (sometimes LD+JSON is missing for Reels)
-        video_match = re.search(r'<meta property="og:video" content="(.*?)"', html)
-        image_match = re.search(r'<meta property="og:image" content="(.*?)"', html)
-        desc_match = re.search(r'<meta property="og:description" content="(.*?)"', html)
+        # 1. Try JSON-LD (Best quality)
+        ld_match = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
+        if ld_match:
+            try:
+                data = json.loads(ld_match.group(1))
+                if isinstance(data, list): data = data[0]
+                
+                v_url = data.get("contentUrl")
+                t_url = data.get("thumbnailUrl") or data.get("image")
+                
+                if v_url or t_url:
+                    return {
+                        "shortcode": shortcode,
+                        "display_url": t_url,
+                        "video_url": v_url,
+                        "caption": data.get("description", ""),
+                        "likes": 0,
+                        "comments": 0,
+                        "owner_username": data.get("author", {}).get("alternateName", "instagram_user"),
+                        "timestamp": data.get("uploadDate", ""),
+                        "is_video": bool(v_url) or is_reel
+                    }
+            except: pass
+
+        # 2. Try OG Tags (Fallback)
+        v_url = re.search(r'<meta property="og:video" content="(.*?)"', html)
+        t_url = re.search(r'<meta property="og:image" content="(.*?)"', html)
+        desc = re.search(r'<meta property="og:description" content="(.*?)"', html)
         
-        if video_match or image_match:
+        if v_url or t_url:
             return {
                 "shortcode": shortcode,
-                "display_url": image_match.group(1) if image_match else "",
-                "video_url": video_match.group(1) if video_match else None,
-                "caption": desc_match.group(1) if desc_match else "",
+                "display_url": t_url.group(1) if t_url else "",
+                "video_url": v_url.group(1) if v_url else None,
+                "caption": desc.group(1) if desc else "",
                 "likes": 0,
                 "comments": 0,
                 "owner_username": "instagram_user",
                 "timestamp": "",
-                "is_video": bool(video_match)
+                "is_video": bool(v_url) or is_reel
             }
+
+        # 3. Final desperation: Look for raw video/image tags in HTML
+        if is_reel:
+            raw_v = re.search(r'video.*src="(https://[^"]+)"', html)
+            if raw_v:
+                return {
+                    "shortcode": shortcode,
+                    "display_url": "",
+                    "video_url": raw_v.group(1),
+                    "caption": "",
+                    "likes": 0,
+                    "comments": 0,
+                    "owner_username": "instagram_user",
+                    "timestamp": "",
+                    "is_video": True
+                }
 
         return None
     except Exception as e:
-        print(f"Browser scrape failed: {e}")
+        print(f"Deep Scrape Error: {e}")
         return None
