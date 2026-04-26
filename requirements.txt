@@ -10,3 +10,4 @@ urllib3
 certifi
 idna
 charset-normalizer
+aiograpi
