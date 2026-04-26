@@ -169,5 +169,11 @@ if __name__ == "__main__":
                 port = int(arg.split("=")[1])
                 break
         
-    logger.info(f"Starting EcoInstagram server on 0.0.0.0:{port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    try:
+        logger.info(f"Starting EcoInstagram server on 0.0.0.0:{port}")
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    except Exception as e:
+        logger.error(f"Failed to start server: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
