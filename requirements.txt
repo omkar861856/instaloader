@@ -10,4 +10,4 @@ urllib3
 certifi
 idna
 charset-normalizer
-instaloader
+instaloader==4.14

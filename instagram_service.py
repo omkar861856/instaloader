@@ -1,6 +1,10 @@
 import os
 import asyncio
-from instaloader import Instaloader, Profile, Post
+try:
+    from instaloader import Instaloader, Profile, Post
+except ImportError as e:
+    import instaloader
+    raise ImportError(f"Instaloader components not found in {getattr(instaloader, '__file__', 'unknown')}. Error: {e}")
 from dotenv import load_dotenv
 
 load_dotenv()
