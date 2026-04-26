@@ -118,11 +118,53 @@ async def scrape_post_with_browser(url, cookies=None):
             }
             
         # 3. Final Fallback: SEO Meta Tags (via requests)
-        return await scrape_via_og_tags(url, cookies=cookies)
+        result = await scrape_via_og_tags(url, cookies=cookies)
+        if result: return result
+        
+        # 4. The "Nuclear" Fallback: curl (Bypasses some TLS blocks)
+        return await scrape_via_curl(url, cookies=cookies)
 
     except Exception as e:
         print(f"Deep Scrape Error: {e}")
         return await scrape_via_og_tags(url, cookies=cookies)
+
+async def scrape_via_curl(url, cookies=None):
+    """
+    Method 4: Uses system curl. curl often bypasses TLS fingerprinting
+    that blocks Python requests.
+    """
+    print("🔄 Attempting system curl fallback...")
+    try:
+        import subprocess
+        cookie_str = ""
+        if cookies:
+            cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+        
+        cmd = [
+            "curl", "-s", "-L",
+            "-H", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "-H", f"Cookie: {cookie_str}",
+            url
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        html = result.stdout
+        
+        video_match = re.search(r'property="og:video" content="([^"]+)"', html)
+        image_match = re.search(r'property="og:image" content="([^"]+)"', html)
+        
+        if video_match or image_match:
+            print("✅ Curl Fallback Success!")
+            return {
+                "shortcode": url.split("/")[-2] if "/" in url else "post",
+                "display_url": image_match.group(1) if image_match else None,
+                "video_url": video_match.group(1) if video_match else None,
+                "caption": "Downloaded via Curl",
+                "is_video": bool(video_match),
+                "owner_username": "instagram_user"
+            }
+    except Exception as e:
+        print(f"Curl fallback failed: {e}")
+    return None
 
 async def scrape_via_og_tags(url, cookies=None):
     """
