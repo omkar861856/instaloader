@@ -12,10 +12,8 @@ load_dotenv()
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
-import logging
-
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("FlowDash")
+logger = logging.getLogger("EcoInstagram")
 
 app = FastAPI(title="EcoInstagram", description="Premium Instagram & FileFlows Dashboard")
 security = HTTPBasic()
@@ -31,13 +29,17 @@ def authenticate_admin(credentials: HTTPBasicCredentials = Depends(security)):
         )
     return credentials.username
 
-# Allow CORS for development
+# Allow CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "project": "EcoInstagram"}
 
 # --- FILEFLOWS API ENDPOINTS ---
 
@@ -138,20 +140,33 @@ async def download_ig_media(data: dict):
 
 # --- OTHER ROUTES ---
 
-@app.get("/")
-async def serve_home():
-    return FileResponse("ui/index.html")
+# --- STATIC FILES ---
 
 # Serve static files (UI)
 if os.path.exists("ui"):
     app.mount("/", StaticFiles(directory="ui", html=True), name="ui")
 
+@app.get("/")
+async def serve_home():
+    if os.path.exists("ui/index.html"):
+        return FileResponse("ui/index.html")
+    return {"error": "UI not found"}
+
 if __name__ == "__main__":
     import uvicorn
     import sys
     
-    port = 5050
-    if len(sys.argv) > 2 and sys.argv[1] == "--port":
-        port = int(sys.argv[2])
+    # Priority: Command line arg > Environment variable > Default 5050
+    port = int(os.getenv("PORT", 5050))
+    
+    if len(sys.argv) > 1:
+        for i, arg in enumerate(sys.argv):
+            if arg == "--port" and i + 1 < len(sys.argv):
+                port = int(sys.argv[i + 1])
+                break
+            elif arg.startswith("--port="):
+                port = int(arg.split("=")[1])
+                break
         
+    logger.info(f"Starting EcoInstagram server on 0.0.0.0:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
