@@ -57,17 +57,21 @@ async def scrape_post_with_browser(url, cookies=None):
     endpoint = f"{base_url}/chromium/content"
     if BROWSERLESS_TOKEN: endpoint += f"?token={BROWSERLESS_TOKEN}"
     
+    # Clean cookies to be extremely safe
+    safe_cookies = []
+    if cookies:
+        for c in cookies:
+            safe_cookies.append({
+                "name": c["name"],
+                "value": c["value"],
+                "domain": ".instagram.com",
+                "path": "/"
+            })
+
     payload = {
         "url": url,
-        "waitForTimeout": 10000,
         "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "cookies": cookies if cookies else [],
-        "stealth": True,
-        "actions": [
-            {"type": "scroll", "offset": 200},
-            {"type": "wait", "duration": 1000},
-            {"type": "scroll", "offset": -200}
-        ]
+        "cookies": safe_cookies
     }
     
     try:
