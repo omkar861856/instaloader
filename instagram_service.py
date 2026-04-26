@@ -1,6 +1,6 @@
 import os
 import asyncio
-import instaloader
+from instaloader import Instaloader, Profile, Post
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +10,7 @@ IG_PASSWORD = os.getenv("IG_PASSWORD")
 
 class InstagramService:
     def __init__(self):
-        self.L = instaloader.Instaloader()
+        self.L = Instaloader()
         self.logged_in = False
         
     async def login(self):
@@ -28,7 +28,7 @@ class InstagramService:
     async def get_user_info(self, username):
         await self.login()
         try:
-            profile = await asyncio.to_thread(instaloader.Profile.from_username, self.L.context, username)
+            profile = await asyncio.to_thread(Profile.from_username, self.L.context, username)
             return {
                 "username": profile.username,
                 "full_name": profile.full_name,
@@ -46,7 +46,7 @@ class InstagramService:
     async def get_user_medias(self, username, amount=10):
         await self.login()
         try:
-            profile = await asyncio.to_thread(instaloader.Profile.from_username, self.L.context, username)
+            profile = await asyncio.to_thread(Profile.from_username, self.L.context, username)
             medias = []
             count = 0
             for post in profile.get_posts():
@@ -75,7 +75,7 @@ class InstagramService:
             elif "instagram.com/reel/" in media_url_or_shortcode:
                 shortcode = media_url_or_shortcode.split("/reel/")[1].split("/")[0]
 
-            post = await asyncio.to_thread(instaloader.Post.from_shortcode, self.L.context, shortcode)
+            post = await asyncio.to_thread(Post.from_shortcode, self.L.context, shortcode)
             
             if not os.path.exists(folder):
                 os.makedirs(folder)
