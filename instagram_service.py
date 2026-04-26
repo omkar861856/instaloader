@@ -1,6 +1,6 @@
 import os
 import asyncio
-from aiograpi import Client
+import instaloader
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,13 +10,14 @@ IG_PASSWORD = os.getenv("IG_PASSWORD")
 
 class InstagramService:
     def __init__(self):
-        self.cl = Client()
+        self.L = instaloader.Instaloader()
         self.logged_in = False
-
+        
     async def login(self):
         if not self.logged_in and IG_USERNAME and IG_PASSWORD:
             try:
-                await self.cl.login(IG_USERNAME, IG_PASSWORD)
+                # Run synchronous login in a thread
+                await asyncio.to_thread(self.L.login, IG_USERNAME, IG_PASSWORD)
                 self.logged_in = True
                 print(f"Logged in to Instagram as {IG_USERNAME}")
             except Exception as e:
@@ -27,38 +28,65 @@ class InstagramService:
     async def get_user_info(self, username):
         await self.login()
         try:
-            return await self.cl.user_info_by_username(username)
+            profile = await asyncio.to_thread(instaloader.Profile.from_username, self.L.context, username)
+            return {
+                "username": profile.username,
+                "full_name": profile.full_name,
+                "biography": profile.biography,
+                "profile_pic_url": profile.profile_pic_url,
+                "follower_count": profile.followers,
+                "following_count": profile.followees,
+                "media_count": profile.mediacount,
+                "is_private": profile.is_private
+            }
         except Exception as e:
             print(f"Error fetching user info for {username}: {e}")
             return None
 
-    async def get_user_medias(self, username, amount=20):
+    async def get_user_medias(self, username, amount=10):
         await self.login()
         try:
-            user_id = await self.cl.user_id_from_username(username)
-            return await self.cl.user_medias(user_id, amount)
+            profile = await asyncio.to_thread(instaloader.Profile.from_username, self.L.context, username)
+            medias = []
+            count = 0
+            for post in profile.get_posts():
+                if count >= amount:
+                    break
+                medias.append({
+                    "shortcode": post.shortcode,
+                    "url": post.url,
+                    "caption": post.caption,
+                    "timestamp": post.date_local.isoformat(),
+                    "is_video": post.is_video
+                })
+                count += 1
+            return medias
         except Exception as e:
             print(f"Error fetching medias for {username}: {e}")
             return []
 
-    async def download_media(self, media_url, folder="downloads"):
+    async def download_media(self, media_url_or_shortcode, folder="downloads"):
         await self.login()
         try:
-            media_pk = await self.cl.media_pk_from_url(media_url)
-            media_info = await self.cl.media_info(media_pk)
+            # Extract shortcode if it's a URL
+            shortcode = media_url_or_shortcode
+            if "instagram.com/p/" in media_url_or_shortcode:
+                shortcode = media_url_or_shortcode.split("/p/")[1].split("/")[0]
+            elif "instagram.com/reel/" in media_url_or_shortcode:
+                shortcode = media_url_or_shortcode.split("/reel/")[1].split("/")[0]
+
+            post = await asyncio.to_thread(instaloader.Post.from_shortcode, self.L.context, shortcode)
             
             if not os.path.exists(folder):
                 os.makedirs(folder)
-                
-            if media_info.media_type == 1: # Photo
-                return await self.cl.photo_download(media_pk, folder)
-            elif media_info.media_type == 2: # Video
-                return await self.cl.video_download(media_pk, folder)
-            elif media_info.media_type == 8: # Album
-                return await self.cl.album_download(media_pk, folder)
-            return None
+            
+            # Instaloader downloads to a directory with the post shortcode/owner
+            target = os.path.join(folder, shortcode)
+            await asyncio.to_thread(self.L.download_post, post, target=target)
+            
+            return target
         except Exception as e:
-            print(f"Error downloading media {media_url}: {e}")
+            print(f"Error downloading media {media_url_or_shortcode}: {e}")
             return None
 
 ig_service = InstagramService()

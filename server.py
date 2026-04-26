@@ -119,12 +119,12 @@ async def get_ig_user(username: str):
     info = await ig_service.get_user_info(username)
     if not info:
         raise HTTPException(status_code=404, detail="User not found or private")
-    return info.dict()
+    return info
 
 @app.get("/api/instagram/medias/{username}")
 async def get_ig_medias(username: str, amount: int = 10):
     medias = await ig_service.get_user_medias(username, amount)
-    return [m.dict() for m in medias]
+    return medias
 
 @app.post("/api/instagram/download")
 async def download_ig_media(data: dict):
