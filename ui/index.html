@@ -1,66 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R6XS1WVQNG"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-R6XS1WVQNG');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Primary SEO Meta Tags -->
-    <title>EcoGram | Premium Instagram Reel & Post Downloader</title>
-    <meta name="title" content="EcoGram | Premium Instagram Reel & Post Downloader">
-    <meta name="description" content="Download high-quality Instagram Reels, Videos, and Photos with EcoGram. Zero compression, high-res thumbnails, and instant downloads for professional video editors and creators.">
-    <meta name="keywords" content="Instagram Downloader, Reel Downloader, Instagram Video Download, 4K Instagram Downloader, Video Editor Tools, EcoGram, Ecotron Labs">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <link rel="canonical" href="https://gram.ecotron.co.in/" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gram.ecotron.co.in/">
-    <meta property="og:title" content="EcoGram | Premium Instagram Reel Downloader">
-    <meta property="og:description" content="Get high-fidelity Instagram source material for your creative projects. Fast, secure, and zero quality loss.">
-    <meta property="og:image" content="https://gram.ecotron.co.in/og-image.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://gram.ecotron.co.in/">
-    <meta property="twitter:title" content="EcoGram | Premium Instagram Reel Downloader">
-    <meta property="twitter:description" content="The ultimate tool for creators to download high-quality Instagram content instantly.">
-    <meta property="twitter:image" content="https://gram.ecotron.co.in/og-image.png">
-
-    <!-- JSON-LD Structured Data for Google -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "EcoGram",
-      "operatingSystem": "Web",
-      "applicationCategory": "MultimediaApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "High-quality Instagram Reel and Post downloader for professional editors.",
-      "author": {
-        "@type": "Person",
-        "name": "Omkar D Lolge",
-        "email": "omkar861856@gmail.com"
-      }
-    }
-    </script>
+    <title>EcoInstagram | Premium Media Dashboard</title>
+    <meta name="description" content="Monitor and manage your FileFlows automation pipeline with FlowDash.">
+    
     <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1069390686666343"
+         crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1069390686666343"
+         crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1069390686666343"
+         crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="background-blobs">
@@ -69,78 +27,185 @@
         <div class="blob blob-3"></div>
     </div>
 
-    <div class="container">
+    <div class="container dashboard">
         <header>
-            <div class="logo">
-                <span class="logo-icon">🌿</span>
-                <h1>EcoGram</h1>
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">📸</span>
+                    <h1>EcoInstagram</h1>
+                </div>
+                <nav class="dashboard-tabs">
+                    <button class="tab-btn active" data-tab="tab-overview">Overview</button>
+                    <button class="tab-btn" data-tab="tab-instagram">Instagram</button>
+                    <button class="tab-btn" data-tab="tab-library">Library</button>
+                    <button class="tab-btn" data-tab="tab-templates">Templates</button>
+                </nav>
+                <div class="system-stats glass">
+                    <div class="stat">
+                        <span class="label">CPU</span>
+                        <span id="stat-cpu" class="value">--%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">RAM</span>
+                        <span id="stat-ram" class="value">--GB</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">STATUS</span>
+                        <span id="stat-status" class="value">ONLINE</span>
+                    </div>
+                </div>
             </div>
-            <p class="subtitle">Premium Instagram Post & Reel Downloader</p>
+            <p class="subtitle">Premium Instagram Media Pipeline</p>
         </header>
 
-        <main>
-            <section class="search-section glass">
-                <div class="search-container">
-                    <input type="text" id="post-url-input" placeholder="Paste Instagram Post or Reel URL here..." spellcheck="false">
-                    <button id="scrape-post-btn">Download Now</button>
+        <main id="tab-overview" class="tab-content active">
+            <div class="dashboard-grid">
+                <!-- Media Pipeline -->
+                <section class="dashboard-col media-pipeline">
+                    <div class="section-header">
+                        <h3><span class="icon">🚀</span> Media Pipeline</h3>
+                    </div>
+                    <div class="pipeline-card glass">
+                        <div class="input-group">
+                            <label>Process External URL</label>
+                            <input type="text" id="pipeline-url" placeholder="YouTube, Twitch, or Direct Media URL...">
+                        </div>
+                        <div class="input-group">
+                            <label>Target Automation Flow</label>
+                            <select id="flow-select" class="glass-select">
+                                <option value="">Loading flows...</option>
+                            </select>
+                        </div>
+                        <button id="trigger-pipeline-btn" class="btn btn-primary btn-block">🚀 Execute Pipeline</button>
+                        <div id="pipeline-status" class="pipeline-status hidden"></div>
+                    </div>
+                </section>
+
+                <!-- Active Tasks -->
+                <section class="dashboard-col active-tasks">
+                    <div class="section-header">
+                        <h3><span class="icon">🔄</span> Active Processing</h3>
+                        <span id="active-count" class="badge">0</span>
+                    </div>
+                    <div id="active-list" class="task-list glass">
+                        <div class="empty-state">No files currently processing</div>
+                    </div>
+                </section>
+
+                <!-- Stats Overview -->
+                <section class="dashboard-col stats-overview">
+                    <div class="stats-row">
+                        <div class="stat-card glass">
+                            <h4>Nodes</h4>
+                            <div id="nodes-container" class="nodes-list"></div>
+                        </div>
+                        <div class="stat-card glass">
+                            <h4>Library Overview</h4>
+                            <div id="library-stats" class="lib-stats"></div>
+                        </div>
+                    </div>
+                    <div class="upcoming-section">
+                        <div class="section-header">
+                            <h3><span class="icon">⏳</span> Upcoming Queue</h3>
+                            <span id="upcoming-count" class="badge">0</span>
+                        </div>
+                        <div id="upcoming-list" class="task-list glass compact"></div>
+                    </div>
+                </section>
+
+                <!-- Recent Activity -->
+                <section class="dashboard-col recent-activity">
+                    <div class="section-header">
+                        <h3><span class="icon">✅</span> Recently Finished</h3>
+                    </div>
+                    <div id="recent-list" class="grid-list"></div>
+                </section>
+            </div>
+        </main>
+
+        <main id="tab-instagram" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- Instagram Tool -->
+                <section class="dashboard-col">
+                    <div class="section-header">
+                        <h3><span class="icon">📸</span> Instagram Tool</h3>
+                    </div>
+                    <div class="pipeline-card glass">
+                        <div class="input-group">
+                            <label>Post or Profile URL</label>
+                            <input type="text" id="ig-url" placeholder="https://www.instagram.com/p/...">
+                        </div>
+                        <div class="admin-link-container" style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                            <button id="ig-fetch-btn" class="btn btn-primary" style="flex: 1;">🔍 Fetch Info</button>
+                            <button id="ig-download-btn" class="btn btn-secondary" style="flex: 1;">📥 Download</button>
+                        </div>
+                        <div id="ig-status" class="pipeline-status hidden"></div>
+                    </div>
+                </section>
+
+                <!-- Instagram Results -->
+                <section class="dashboard-col">
+                    <div class="section-header">
+                        <h3><span class="icon">👤</span> Result Preview</h3>
+                    </div>
+                    <div id="ig-result-card" class="glass" style="padding: 1.5rem; min-height: 200px;">
+                        <div class="empty-state">Fetch a profile or post to see details</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <main id="tab-library" class="tab-content">
+            <section class="dashboard-col full-width">
+                <div class="section-header">
+                    <h3><span class="icon">📁</span> Library Explorer</h3>
+                </div>
+                <div class="library-explorer glass">
+                    <table class="glass-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Library</th>
+                                <th>Size</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="library-files-body">
+                            <!-- Files injected here -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
+        </main>
 
-            <div id="loading" class="loader-container hidden">
-                <div class="loader"></div>
-                <p>Scraping media intelligence...</p>
-            </div>
-
-            <div id="error-msg" class="error-msg hidden"></div>
-
-            <!-- Single Post Preview -->
-            <div id="post-preview-card" class="post-preview-card glass hidden">
-                <div class="preview-container">
-                    <div id="preview-media" class="preview-media">
-                        <!-- Image or Video will be injected here -->
-                    </div>
-                    <div class="preview-details">
-                        <div class="preview-header">
-                            <span class="preview-user" id="preview-user">@username</span>
-                            <span class="preview-stats" id="preview-stats">❤️ 0 | 💬 0</span>
-                        </div>
-                        <p class="preview-caption" id="preview-caption"></p>
-                        <div class="preview-actions">
-                            <button class="btn btn-secondary" id="dl-thumb-btn">Download Thumbnail</button>
-                            <button class="btn btn-secondary" id="dl-video-btn" style="display: none;">Download Video/Reel</button>
-                        </div>
-                    </div>
+        <main id="tab-templates" class="tab-content">
+            <section class="dashboard-col full-width">
+                <div class="section-header">
+                    <h3><span class="icon">📋</span> Flow Templates</h3>
                 </div>
-            </div>
-
-            <section class="about-section glass">
-                <div class="about-grid">
-                    <div class="about-info">
-                        <div class="section-title">
-                            <span class="icon">✨</span>
-                            <h3>Pro Media Engine</h3>
-                        </div>
-                        <p>EcoGram delivers high-fidelity Instagram source material directly to your production pipeline. Designed for elite video editors and creators who demand zero compression.</p>
-                    </div>
-                    <div class="about-features">
-                        <div class="feature-tag">🎬 For Editors</div>
-                        <div class="feature-tag">📸 For Creators</div>
-                        <div class="feature-tag">💎 Zero Loss</div>
-                    </div>
-                </div>
-                <div class="developer-footer">
-                    <span class="contact-label">Developer Support:</span>
-                    <a href="mailto:omkar861856@gmail.com" class="contact-link">omkar861856@gmail.com</a>
+                <div id="templates-grid" class="grid-list">
+                    <!-- Templates injected here -->
                 </div>
             </section>
         </main>
 
         <footer class="footer">
-            <p>&copy; 2026 EcoGram. All rights reserved.</p>
+            <div class="footer-content">
+                <p>&copy; 2026 FlowDash. All rights reserved.</p>
+                <div class="admin-link-container">
+                    <button id="refresh-btn" class="btn btn-icon">🔄 Refresh Now</button>
+                    <button id="rescan-btn" class="btn btn-secondary">📁 Force Rescan</button>
+                </div>
+            </div>
             <p class="powered">Powered by <strong>ecotron labs</strong></p>
         </footer>
     </div>
 
-    <script src="main.js?v=1.3"></script>
+    <div id="loading-overlay" class="loader-container hidden">
+        <div class="loader"></div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
 </html>
